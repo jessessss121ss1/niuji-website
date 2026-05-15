@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>牛记 — 交易者的纪律守护者</title>
+  <meta name="description" content="牛记，帮助交易者记录操作、监督纪律、看清自己。不荐股、不预测，只帮你做到自己说过的话。">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #c08b3e;
+      --gold-light: #d4a853;
+      --gold-dim: rgba(192, 139, 62, 0.15);
+      --bg-deep: #0f1720;
+      --bg-card: #161f2c;
+      --bg-card-hover: #1c2737;
+      --text-primary: #e8e4de;
+      --text-secondary: #8a9ab0;
+      --text-dim: #4a5568;
+      --border: rgba(192, 139, 62, 0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans SC', -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ===== 背景纹理 ===== */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(192, 139, 62, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(192, 139, 62, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== 容器 ===== */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== 导航 ===== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      backdrop-filter: blur(20px);
+      background: rgba(15, 23, 32, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .nav-link:hover {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    /* ===== Hero ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-icon {
+      width: 120px;
+      height: 120px;
+      border-radius: 28px;
+      margin-bottom: 40px;
+      box-shadow:
+        0 0 60px rgba(192, 139, 62, 0.2),
+        0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 900;
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold), #a07030);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-tagline {
+      font-size: clamp(16px, 2.5vw, 22px);
+      color: var(--text-secondary);
+      font-weight: 300;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text-dim);
+      max-width: 480px;
+      margin-bottom: 48px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+    }
+
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ===== 理念 ===== */
+    .philosophy {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .philosophy blockquote {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 400;
+      color: var(--text-primary);
+      max-width: 640px;
+      margin: 0 auto 24px;
+      line-height: 1.8;
+    }
+
+    .philosophy blockquote em {
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .philosophy .source {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* ===== 分割线 ===== */
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto;
+      opacity: 0.4;
+    }
+
+    /* ===== 功能 ===== */
+    .features {
+      padding: 100px 0;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 60px;
+      color: var(--text-primary);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(192, 139, 62, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== 红线 ===== */
+    .redline {
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .redline-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .redline-item {
+      padding: 10px 20px;
+      border: 1px solid rgba(201, 70, 61, 0.2);
+      border-radius: 8px;
+      font-size: 14px;
+      color: #c9463d;
+      background: rgba(201, 70, 61, 0.06);
+    }
+
+    /* ===== CTA ===== */
+    .cta {
+      padding: 120px 0;
+      text-align: center;
+    }
+
+    .cta h2 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .cta p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #0f1720;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(192, 139, 62, 0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--gold); }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 640px) {
+      .hero { padding: 100px 20px 60px; }
+      .hero-icon { width: 88px; height: 88px; border-radius: 22px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .redline-grid { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 导航 -->
+  <nav>
+    <div class="container">
+      <a href="#" class="nav-brand">
+        <img src="icon.png" alt="牛记" class="nav-logo">
+        <span class="nav-name">牛记</span>
+      </a>
+      <a href="#download" class="nav-link">即将上线</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <img src="icon.png" alt="牛记" class="hero-icon">
+    <h1>牛记</h1>
+    <p class="hero-tagline">交易纪律，帮你记住</p>
+    <p class="hero-sub">你定规则，牛记帮你盯。不荐股、不预测，只帮你做到自己说过的话。</p>
+    <div class="hero-badge">
+      <span class="dot"></span>
+      iOS & Android 即将上线
+    </div>
+  </section>
+
+  <!-- 理念 -->
+  <section class="philosophy">
+    <div class="container">
+      <div class="divider" style="margin-bottom: 60px;"></div>
+      <blockquote>
+        交易者最大的敌人不是市场，<br>是<em>昨天的自己</em>。<br><br>
+        大多数人亏钱，不是因为看不到信号，<br>而是看到了信号却<em>不遵守纪律</em>。
+      </blockquote>
+      <p class="source">— 来自真实用户访谈</p>
+    </div>
+  </section>
+
+  <!-- 功能 -->
+  <section class="features">
+    <div class="container">
+      <p class="section-label">核心能力</p>
+      <h2 class="section-title">帮你看见自己看不见的东西</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎙️</div>
+          <h3>3 秒记录</h3>
+          <p>说一句话就能记下交易操作。AI 自动识别股票、价格、策略、纪律条件。比发微博还快。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚠️</div>
+          <h3>纪律监督</h3>
+          <p>你说"止损 35"，牛记帮你盯着。价格到了、时间到了、均线破了——第一时间推送提醒你。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>股票档案</h3>
+          <p>按股票维度查看所有操作历史。上次买是什么理由？上次卖为什么后悔？一目了然。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>私密安全</h3>
+          <p>你的决策档案只属于你。没有社交、没有广场、没有人看到你的操作记录。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>AI 理解你</h3>
+          <p>"两天不涨就拍掉""跌破 20 日线就走"——口语化表达，AI 全能懂。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>随时随地</h3>
+          <p>盘中灵感、盘后复盘、周末反思，打开 App 说一句就行。语音或文字，随你习惯。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 红线 -->
+  <section class="redline">
+    <div class="container">
+      <p class="section-label">产品红线</p>
+      <h2 class="section-title">我们明确不做的事</h2>
+      <div class="redline-grid">
+        <div class="redline-item">❌ 不做 AI 荐股</div>
+        <div class="redline-item">❌ 不做行情预测</div>
+        <div class="redline-item">❌ 不做信号推送</div>
+        <div class="redline-item">❌ 不做社交社区</div>
+        <div class="redline-item">❌ 不碰交易执行</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="download">
+    <div class="container">
+      <h2>准备好认真对待自己的纪律了吗？</h2>
+      <p>牛记即将上线 App Store 和 Android，敬请期待。</p>
+      <div class="cta-buttons">
+        <a class="btn btn-primary" onclick="document.getElementById('wechat-modal').style.display='flex'">加入内测</a>
+      </div>
+
+      <!-- 二维码弹窗 -->
+      <div id="wechat-modal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:200; align-items:center; justify-content:center;" onclick="this.style.display='none'">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:36px 32px; text-align:center; max-width:320px;" onclick="event.stopPropagation()">
+          <p style="font-size:17px; font-weight:600; margin-bottom:16px; color:var(--text-primary);">扫码加入内测群</p>
+          <img src="qrcode.jpg" alt="内测群二维码" style="width:200px; border-radius:12px; margin-bottom:16px;">
+          <p style="font-size:13px; color:var(--text-secondary);">小红书扫码加入</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2026 牛记 · 交易者的纪律守护者</p>
+    </div>
+  </footer>
+
+</body>
+</html>
