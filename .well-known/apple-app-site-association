@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "2SY4W8BVV6.com.niuji.app",
+        "paths": ["/niuji-website/app/*"]
+      }
+    ]
+  }
+}
